@@ -18,6 +18,7 @@ from datetime import datetime
 
 # getting text chunks from pdf
 
+# get text
 def get_pdf_text(pdf_docs):
     text=""
     for pdf in pdf_docs:
@@ -25,4 +26,21 @@ def get_pdf_text(pdf_docs):
         for page in pdf_reader.pages:
             text+= page.extract_text()
     return text
+
+# get chunks
+
+def get_text_chunks(text, model_name):
+    if(model_name=="Google AI"):
+        text_splitter= RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=1000)
+    chunks= text_splitter.split_text(text)
+    return chunks 
+
+# embedding chunks and then storing in vector store
+
+def get_vector_store(text_chunks, model_name, api_key= None):
+    if model_name=="Google AI":
+        embeddings= GoogleGenerativeAIEmbeddings(model="model/embedding-001", google_api_key= api_key )
+    vector_store= FAISS.from_texts(text_chunks, embedding=embeddings)
+    vector_store= save_local("faiss_index")
+    return vector_store
 
